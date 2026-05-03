@@ -1019,8 +1019,7 @@
       calculateAll();
       const rows = state.scheduleRows || [];
       if (!rows.length) { alert("Calculate the bond first before exporting."); return; }
-      const csv = [["Month","Opening Balance","Interest","Payment","Principal","Closing Balance"], ...rows.map(r => [r.month, r.opening.toFixed(2), r.interest.toFixed(2), r.payment.toFixed(2), r.principalPaid.toFixed(2), r.closing.toFixed(2)])].map(row => row.join(",")).join("
-");
+      const csv = [["Month","Opening Balance","Interest","Payment","Principal","Closing Balance"], ...rows.map(r => [r.month, r.opening.toFixed(2), r.interest.toFixed(2), r.payment.toFixed(2), r.principalPaid.toFixed(2), r.closing.toFixed(2)])].map(row => row.join(",")).join(String.fromCharCode(10));
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -1077,16 +1076,28 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       byId("yearOut").textContent = new Date().getFullYear();
-      setupTabs(); setupInputs();
-      ["calculateBtn","recalculateExtraBtn","affordabilityBtn","transferFeesBtn","deedsFeesBtn"].forEach(id => byId(id).addEventListener("click", () => { writeMoneyInputs(); calculateAll(); }));
-      byId("clearBtn").addEventListener("click", clearAll);
-      byId("clearExtrasBtn").addEventListener("click", clearExtras);
-      byId("exportCsvBtn").addEventListener("click", exportCSV);
-      byId("saveBtn").addEventListener("click", saveState);
-      byId("loadBtn").addEventListener("click", loadState);
-      byId("saveBtnMobile").addEventListener("click", saveState);
-      byId("loadBtnMobile").addEventListener("click", loadState);
-      writeMoneyInputs(); calculateAll();
+      setupTabs();
+      setupInputs();
+
+      const addClick = (id, handler) => {
+        const el = byId(id);
+        if (el) el.addEventListener("click", handler);
+      };
+
+      ["calculateBtn","recalculateExtraBtn","affordabilityBtn","transferFeesBtn","deedsFeesBtn"].forEach(id => {
+        addClick(id, () => { writeMoneyInputs(); calculateAll(); });
+      });
+
+      addClick("clearBtn", clearAll);
+      addClick("clearExtrasBtn", clearExtras);
+      addClick("exportCsvBtn", exportCSV);
+      addClick("saveBtn", saveState);
+      addClick("loadBtn", loadState);
+      addClick("saveBtnMobile", saveState);
+      addClick("loadBtnMobile", loadState);
+
+      writeMoneyInputs();
+      calculateAll();
     });
   </script>
 </body>
