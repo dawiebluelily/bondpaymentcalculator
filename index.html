@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blue Lily Bond Calculator</title>
+  <meta name="description" content="Blue Lily Bond Calculator with bond calculator, repayment calculator, transfer fees, deeds fees, affordability and amortization schedule." />
+  <link rel="icon" href="assets/blue-lily-logo.png" />
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root {
+      --bg: #07090d;
+      --bg-soft: #0b0f14;
+      --panel: #11161f;
+      --panel-2: #171d27;
+      --panel-3: #1b2230;
+      --input: #0d1219;
+      --text: #f3f6fb;
+      --muted: #9aa8ba;
+      --soft: #d6dee8;
+      --accent: #6b88a7;
+      --accent-2: #8fa6bf;
+      --accent-3: #43566f;
+      --border: rgba(166, 184, 205, 0.16);
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --radius: 20px;
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(760px 340px at 12% -5%, rgba(143,166,191,.14), transparent 64%),
+        radial-gradient(760px 360px at 88% 4%, rgba(67,86,111,.16), transparent 62%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-soft) 100%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    }
+
+    body { padding-bottom: 32px; }
+
+    .wrap {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+    }
+
+    .appbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(7, 9, 13, 0.84);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .topbar {
+      min-height: 82px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      padding: 12px 0;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .brand img {
+      width: 58px;
+      height: 58px;
+      object-fit: contain;
+      filter: drop-shadow(0 10px 22px rgba(143,166,191,.20));
+      flex: 0 0 auto;
+    }
+
+    .brand-title {
+      font-weight: 900;
+      font-size: clamp(1.08rem, 2vw, 1.55rem);
+      letter-spacing: -.045em;
+      line-height: 1.05;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .brand-subtitle {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: .79rem;
+      line-height: 1.35;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .15s ease, background .15s ease, border .15s ease, box-shadow .15s ease;
+      white-space: nowrap;
+      font-size: .86rem;
+    }
+    .btn:hover { transform: translateY(-1px); background: rgba(255,255,255,.08); }
+    .btn:active { transform: translateY(0); }
+    .btn.primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-3));
+      border-color: transparent;
+      box-shadow: 0 14px 30px rgba(67,86,111,.25);
+    }
+    .btn.subtle {
+      background: rgba(143,166,191,.10);
+      border-color: rgba(143,166,191,.18);
+      color: #eef4fb;
+    }
+    .btn.danger {
+      background: rgba(239,68,68,.09);
+      border-color: rgba(239,68,68,.18);
+      color: #fecaca;
+    }
+
+    .hero {
+      padding: 22px 0 10px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .intro-card {
+      background: linear-gradient(135deg, rgba(143,166,191,.10), rgba(255,255,255,.02)), var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: clamp(20px, 3.5vw, 34px);
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .intro-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -120px -120px auto;
+      width: 280px;
+      height: 280px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(143,166,191,.10) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    @media (min-width: 860px) {
+      .intro-card { grid-template-columns: 1fr 220px; align-items: center; }
+    }
+
+    .hero-logo {
+      width: min(210px, 100%);
+      justify-self: center;
+      filter: drop-shadow(0 18px 34px rgba(0,0,0,.26));
+      opacity: .96;
+      z-index: 1;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.75rem, 4.3vw, 3.5rem);
+      letter-spacing: -.07em;
+      line-height: .96;
+      max-width: 760px;
+    }
+
+    .lead {
+      margin: 13px 0 0;
+      color: var(--muted);
+      max-width: 760px;
+      line-height: 1.6;
+      font-size: .98rem;
+    }
+
+    .badges {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border-radius: 999px;
+      padding: 8px 11px;
+      border: 1px solid rgba(143,166,191,.16);
+      color: #e6eef7;
+      background: rgba(143,166,191,.08);
+      font-size: .77rem;
+      font-weight: 800;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 9px;
+      overflow-x: auto;
+      padding: 9px 1px 4px;
+      scrollbar-width: thin;
+    }
+
+    .tab {
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--soft);
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 900;
+      cursor: pointer;
+      white-space: nowrap;
+      font-size: .87rem;
+    }
+
+    .tab.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent-3));
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 12px 26px rgba(67,86,111,.24);
+    }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .grid { display: grid; gap: 18px; }
+    .grid-2, .layout-main { grid-template-columns: 1fr; }
+    @media (min-width: 760px) { .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (min-width: 980px) { .layout-main { grid-template-columns: 390px minmax(0, 1fr); } }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015)), var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: 0 14px 42px rgba(0,0,0,.18);
+    }
+
+    .card-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .card h2, .card h3 {
+      margin: 0;
+      letter-spacing: -.035em;
+      line-height: 1.18;
+    }
+    .card h2 { font-size: 1.2rem; }
+    .card h3 { font-size: 1.04rem; }
+
+    .note, .disclaimer, .footer, .field-help, .metric-label, .line-item span:first-child {
+      color: var(--muted);
+    }
+
+    .note, .disclaimer, .footer { line-height: 1.54; }
+    .note, .disclaimer { font-size: .82rem; }
+    .footer { font-size: .78rem; margin-top: 24px; }
+    .field-help { font-size: .72rem; font-weight: 650; }
+
+    .stack { display: grid; gap: 13px; }
+    label { display: grid; gap: 7px; color: var(--soft); font-size: .84rem; font-weight: 800; }
+
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--input);
+      border: 1px solid rgba(166,184,205,.14);
+      border-radius: 15px;
+      padding: 8px 12px;
+      min-height: 49px;
+    }
+
+    .prefix, .suffix { color: #8ea1b8; font-weight: 900; flex: 0 0 auto; }
+    input, select {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font: inherit;
+      font-weight: 800;
+      min-width: 0;
+    }
+    select option { background: #11161f; color: white; }
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); opacity: .7; }
+
+    .actions { display: flex; gap: 9px; flex-wrap: wrap; margin-top: 14px; }
+
+    .metric-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    @media (min-width: 650px) { .metric-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+    .metric {
+      background: rgba(13,18,25,.85);
+      border: 1px solid rgba(166,184,205,.14);
+      border-radius: 17px;
+      padding: 14px;
+      min-height: 92px;
+    }
+    .metric-value {
+      font-size: clamp(1.18rem, 2.8vw, 1.82rem);
+      letter-spacing: -.045em;
+      font-weight: 950;
+      margin-top: 8px;
+      word-break: break-word;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      font-size: .74rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-weight: 950;
+      border: 1px solid;
+      white-space: nowrap;
+    }
+    .pill.green { color: #bbf7d0; background: rgba(34,197,94,.12); border-color: rgba(34,197,94,.42); }
+    .pill.red { color: #fecaca; background: rgba(239,68,68,.10); border-color: rgba(239,68,68,.42); }
+    .pill.amber { color: #fde68a; background: rgba(245,158,11,.11); border-color: rgba(245,158,11,.42); }
+    .pill.blue { color: #e2ecf7; background: rgba(143,166,191,.10); border-color: rgba(143,166,191,.20); }
+
+    .line-list { display: grid; gap: 8px; }
+    .line-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      padding: 11px 12px;
+      background: rgba(13,18,25,.72);
+      border: 1px solid rgba(166,184,205,.14);
+      border-radius: 15px;
+      font-size: .9rem;
+    }
+    .line-item strong { text-align: right; }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid rgba(166,184,205,.14);
+      border-radius: 17px;
+      max-height: 460px;
+      background: #0d1219;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+      font-size: .86rem;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid rgba(166,184,205,.10);
+      text-align: right;
+      white-space: nowrap;
+    }
+    th:first-child, td:first-child { text-align: left; }
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: #151c27;
+      color: #dbe5f1;
+      font-size: .73rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    tbody tr:nth-child(even) { background: rgba(255,255,255,.02); }
+
+    .mobile-only { display: none; }
+    @media (max-width: 620px) {
+      .topbar { align-items: flex-start; }
+      .brand img { width: 48px; height: 48px; }
+      .top-actions { display: none; }
+      .mobile-only { display: flex; }
+      .brand-title { white-space: normal; }
+    }
+
+    @media print {
+      .appbar, .tabs, .actions { display: none !important; }
+      body { background: #fff; color: #111827; }
+      .wrap { width: 100%; }
+      .card, .intro-card, .metric, .line-item, .table-wrap {
+        box-shadow: none;
+        border-color: #ddd;
+        background: #fff;
+        color: #111827;
+      }
+      .note, .disclaimer, .footer, .field-help, .metric-label, .line-item span:first-child, .lead, .brand-subtitle {
+        color: #374151;
+      }
+      input { color: #111827; }
+      th { background: #f3f4f6; color: #111827; }
+    }
+  </style>
+</head>
+<body>
+  <header class="appbar">
+    <div class="wrap topbar">
+      <div class="brand">
+        <img src="assets/blue-lily-logo.png" alt="Blue Lily Properties logo" />
+        <div>
+          <div class="brand-title">Blue Lily Bond Calculator</div>
+          <div class="brand-subtitle">Bond calculator, repayment calculator, transfer fees, deeds fees and affordability.</div>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn subtle" type="button" id="saveBtn">Save</button>
+        <button class="btn subtle" type="button" id="loadBtn">Load</button>
+        <button class="btn" type="button" onclick="window.print()">Print</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap hero">
+    <section class="intro-card">
+      <div>
+        <h1>Blue Lily Bond Calculator</h1>
+        <p class="lead">A cleaner Blue Lily calculator for buyer conversations. Estimate repayments, repayment savings, transfer fees, deeds fees, affordability and the full repayment schedule in one place.</p>
+        <div class="badges">
+          <span class="badge">Bond Calculator</span>
+          <span class="badge">Repayment Calculator</span>
+          <span class="badge">Transfer Fees</span>
+          <span class="badge">Deeds Fees</span>
+          <span class="badge">CSV Export</span>
+        </div>
+        <div class="actions mobile-only">
+          <button class="btn subtle" type="button" id="saveBtnMobile">Save</button>
+          <button class="btn subtle" type="button" id="loadBtnMobile">Load</button>
+          <button class="btn" type="button" onclick="window.print()">Print</button>
+        </div>
+      </div>
+      <img class="hero-logo" src="assets/blue-lily-logo.png" alt="Blue Lily Properties logo" />
+    </section>
+
+    <nav class="tabs" aria-label="Calculator tabs">
+      <button class="tab active" data-tab="bond">Bond Calculator</button>
+      <button class="tab" data-tab="repayment">Repayment Calculator</button>
+      <button class="tab" data-tab="affordability">Affordability</button>
+      <button class="tab" data-tab="transferFees">Transfer Fees</button>
+      <button class="tab" data-tab="deedsFees">Deeds Fees</button>
+      <button class="tab" data-tab="schedule">Schedule</button>
+    </nav>
+
+    <section id="bond" class="section active">
+      <div class="grid layout-main">
+        <div class="card">
+          <div class="card-title"><h2>Bond inputs</h2></div>
+          <div class="stack">
+            <label>Purchase price
+              <div class="input-row"><span class="prefix">R</span><input id="purchasePrice" data-money type="text" inputmode="decimal" placeholder="1 500 000"></div>
+              <span class="field-help">The property purchase price.</span>
+            </label>
+            <label>Deposit
+              <div class="input-row"><span class="prefix">R</span><input id="deposit" data-money type="text" inputmode="decimal" placeholder="150 000"></div>
+              <span class="field-help">Buyer cash deposit.</span>
+            </label>
+            <label>Interest rate
+              <div class="input-row"><input id="interestRate" type="number" step="0.01" inputmode="decimal" placeholder="11.75"><span class="suffix">%</span></div>
+            </label>
+            <label>Term
+              <div class="input-row"><input id="termYears" type="number" step="1" inputmode="numeric" placeholder="20"><span class="suffix">years</span></div>
+            </label>
+          </div>
+          <div class="actions">
+            <button class="btn primary" type="button" id="calculateBtn">Calculate</button>
+            <button class="btn danger" type="button" id="clearBtn">Clear</button>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card">
+            <div class="card-title"><h2>Bond result</h2></div>
+            <div class="metric-grid two">
+              <div class="metric"><div class="metric-label">Loan amount</div><div class="metric-value" id="loanAmountOut">R 0</div></div>
+              <div class="metric"><div class="metric-label">Estimated monthly repayment</div><div class="metric-value" id="monthlyRepaymentOut">R 0</div></div>
+              <div class="metric"><div class="metric-label">Total interest over term</div><div class="metric-value" id="totalInterestOut">R 0</div></div>
+              <div class="metric"><div class="metric-label">Total repaid over term</div><div class="metric-value" id="totalRepaidOut">R 0</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><h3>Quick client view</h3></div>
+            <div class="line-list">
+              <div class="line-item"><span>Deposit percentage</span><strong id="depositPctOut">0%</strong></div>
+              <div class="line-item"><span>Bond percentage</span><strong id="bondPctOut">0%</strong></div>
+              <div class="line-item"><span>Payment per R100 000 borrowed</span><strong id="per100kOut">R 0</strong></div>
+              <div class="line-item"><span>Estimated total cash costs</span><strong id="totalCashCostsOut">R 0</strong></div>
+            </div>
+            <p class="disclaimer">Estimate only. Final repayment, affordability, costs and approval depend on the lender, buyer profile, conveyancer and transaction details.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="repayment" class="section">
+      <div class="grid layout-main">
+        <div class="card">
+          <div class="card-title"><h2>Repayment inputs</h2></div>
+          <div class="stack">
+            <label>Extra monthly payment
+              <div class="input-row"><span class="prefix">R</span><input id="extraMonthly" data-money type="text" inputmode="decimal" placeholder="1 000"></div>
+              <span class="field-help">Extra amount paid into the bond every month.</span>
+            </label>
+            <label>Once-off extra payment amount
+              <div class="input-row"><span class="prefix">R</span><input id="onceOffAmount" data-money type="text" inputmode="decimal" placeholder="25 000"></div>
+            </label>
+            <label>Once-off payment month
+              <div class="input-row"><input id="onceOffMonth" type="number" step="1" inputmode="numeric" placeholder="12"><span class="suffix">month</span></div>
+              <span class="field-help">Example: 12 means the once-off payment happens in month 12.</span>
+            </label>
+          </div>
+          <div class="actions">
+            <button class="btn primary" type="button" id="recalculateExtraBtn">Calculate savings</button>
+            <button class="btn danger" type="button" id="clearExtrasBtn">Clear extras</button>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="card">
+            <div class="card-title"><h2>Extra payment impact</h2></div>
+            <div class="metric-grid two">
+              <div class="metric"><div class="metric-label">Base monthly repayment</div><div class="metric-value" id="basePaymentOut">R 0</div></div>
+              <div class="metric"><div class="metric-label">New estimated term</div><div class="metric-value" id="newTermOut">0 months</div></div>
+              <div class="metric"><div class="metric-label">Months saved</div><div class="metric-value" id="monthsSavedOut">0</div></div>
+              <div class="metric"><div class="metric-label">Interest saved</div><div class="metric-value" id="interestSavedOut">R 0</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><h3>Client message</h3></div>
+            <p class="note" id="repaymentMessage">Enter the bond details, then add an extra monthly or once-off payment to see the saving.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="affordability" class="section">
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-title"><h2>Affordability inputs</h2></div>
+          <div class="stack">
+            <label>Gross monthly income
+              <div class="input-row"><span class="prefix">R</span><input id="grossIncome" data-money type="text" inputmode="decimal" placeholder="45 000"></div>
+            </label>
+            <label>Statutory deductions
+              <div class="input-row"><span class="prefix">R</span><input id="statDeductions" data-money type="text" inputmode="decimal" placeholder="9 000"></div>
+              <span class="field-help">PAYE, UIF, pension, maintenance, garnishees, etc.</span>
+            </label>
+            <label>Living expenses
+              <div class="input-row"><span class="prefix">R</span><input id="livingExpenses" data-money type="text" inputmode="decimal" placeholder="15 000"></div>
+            </label>
+            <label>Existing debt instalments
+              <div class="input-row"><span class="prefix">R</span><input id="existingDebt" data-money type="text" inputmode="decimal" placeholder="4 000"></div>
+            </label>
+            <label>Bank rule cap
+              <div class="input-row"><input id="bankCap" type="number" step="0.1" inputmode="decimal" value="30"><span class="suffix">% of gross</span></div>
+              <span class="field-help">Set to 0 to ignore this cap.</span>
+            </label>
+          </div>
+          <div class="actions">
+            <button class="btn primary" type="button" id="affordabilityBtn">Run affordability</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><h2>Affordability result</h2><span class="pill amber" id="affordabilityPill">Pending</span></div>
+          <div class="line-list">
+            <div class="line-item"><span>Proposed instalment</span><strong id="proposedInstalmentOut">R 0</strong></div>
+            <div class="line-item"><span>Discretionary income</span><strong id="discretionaryIncomeOut">R 0</strong></div>
+            <div class="line-item"><span>NCA margin</span><strong id="ncaMarginOut">R 0</strong></div>
+            <div class="line-item"><span>Bank cap value</span><strong id="bankCapOut">R 0</strong></div>
+            <div class="line-item"><span>Max instalment using combined rule</span><strong id="maxInstalmentOut">R 0</strong></div>
+            <div class="line-item"><span>Combined margin</span><strong id="combinedMarginOut">R 0</strong></div>
+          </div>
+          <p class="disclaimer">This is a practical pre-check only. A lender full affordability, credit and risk assessment still applies.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="transferFees" class="section">
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-title"><h2>Transfer Fees inputs</h2></div>
+          <div class="stack">
+            <label>Purchase price
+              <div class="input-row"><span class="prefix">R</span><input id="transferPurchasePriceMirror" data-money type="text" inputmode="decimal" placeholder="Same as purchase price"></div>
+              <span class="field-help">Changing this also updates the main purchase price.</span>
+            </label>
+            <label>Property is VAT transaction?
+              <div class="input-row">
+                <select id="vatTransaction">
+                  <option value="no">No, calculate transfer duty</option>
+                  <option value="yes">Yes, transfer duty excluded</option>
+                </select>
+              </div>
+              <span class="field-help">Where VAT applies, transfer duty is normally not added. Confirm with the conveyancer.</span>
+            </label>
+            <label>Include VAT on selected estimates
+              <div class="input-row">
+                <select id="includeVatOnFees">
+                  <option value="yes">Yes, include 15%</option>
+                  <option value="no">No, exclude VAT</option>
+                </select>
+              </div>
+            </label>
+            <label>Bank initiation/admin estimate
+              <div class="input-row"><span class="prefix">R</span><input id="bankInitiationFee" data-money type="text" inputmode="decimal" value="6 037"></div>
+            </label>
+          </div>
+          <div class="actions">
+            <button class="btn primary" type="button" id="transferFeesBtn">Calculate transfer fees</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><h2>Transfer Fees result</h2><span class="pill blue">Estimate</span></div>
+          <div class="line-list">
+            <div class="line-item"><span>Transfer duty</span><strong id="transferDutyOut">R 0</strong></div>
+            <div class="line-item"><span>Deeds Office transfer fee</span><strong id="deedsTransferFeeOut">R 0</strong></div>
+            <div class="line-item"><span>Estimated lodgement fee</span><strong id="transferLodgementOut">R 0</strong></div>
+            <div class="line-item"><span>Bank initiation/admin estimate</span><strong id="bankInitiationOut">R 0</strong></div>
+            <div class="line-item"><span>VAT on selected fees</span><strong id="vatOnFeesOut">R 0</strong></div>
+            <div class="line-item"><span>Total estimated transfer fees</span><strong id="transferFeesTotalOut">R 0</strong></div>
+          </div>
+          <p class="disclaimer">Transfer Fees includes transfer duty, Deeds Office transfer fee, lodgement and selected admin estimates.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="deedsFees" class="section">
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="card-title"><h2>Deeds Fees summary</h2></div>
+          <div class="line-list">
+            <div class="line-item"><span>Purchase price used</span><strong id="deedsPriceUsedOut">R 0</strong></div>
+            <div class="line-item"><span>Bond amount used</span><strong id="deedsBondUsedOut">R 0</strong></div>
+            <div class="line-item"><span>Deeds Office transfer fee</span><strong id="deedsTransferFeeOut2">R 0</strong></div>
+            <div class="line-item"><span>Deeds Office bond registration fee</span><strong id="deedsBondFeeOut">R 0</strong></div>
+            <div class="line-item"><span>Estimated lodgement fees</span><strong id="deedsLodgementOut">R 0</strong></div>
+            <div class="line-item"><span>Total Deeds Fees</span><strong id="deedsFeesTotalOut">R 0</strong></div>
+          </div>
+          <p class="disclaimer">Deeds Fees uses the Deeds Office registration bands plus estimated lodgement fees.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><h2>Fee settings</h2></div>
+          <div class="stack">
+            <label>Lodgement fee per deed/document
+              <div class="input-row"><span class="prefix">R</span><input id="lodgementFee" data-money type="text" inputmode="decimal" value="52"></div>
+            </label>
+            <label>Number of lodgements to estimate
+              <div class="input-row"><input id="lodgementCount" type="number" step="1" value="2"><span class="suffix">items</span></div>
+              <span class="field-help">Default is 2: transfer and bond lodgement.</span>
+            </label>
+            <button class="btn primary" type="button" id="deedsFeesBtn">Calculate deeds fees</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="schedule" class="section">
+      <div class="card">
+        <div class="card-title">
+          <div>
+            <h2>Repayment schedule</h2>
+            <p class="note">The table uses the current bond inputs and includes the extra-payment scenario when extras are entered.</p>
+          </div>
+          <div class="actions" style="margin-top:0"><button class="btn subtle" type="button" id="exportCsvBtn">Export CSV</button></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Opening Balance</th>
+                <th>Interest</th>
+                <th>Payment</th>
+                <th>Principal</th>
+                <th>Closing Balance</th>
+              </tr>
+            </thead>
+            <tbody id="scheduleBody">
+              <tr><td colspan="6" style="text-align:center;color:#9aa8ba;padding:18px">Enter bond inputs and calculate to generate the schedule.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">© <span id="yearOut"></span> Blue Lily Properties. Estimates only. This is not financial advice and not a formal conveyancing quote.</footer>
+  </main>
+
+  <script>
+    const state = {
+      purchasePrice: 0,
+      deposit: 0,
+      interestRate: 0,
+      termYears: 0,
+      extraMonthly: 0,
+      onceOffAmount: 0,
+      onceOffMonth: 0,
+      grossIncome: 0,
+      statDeductions: 0,
+      livingExpenses: 0,
+      existingDebt: 0,
+      bankCap: 30,
+      vatTransaction: "no",
+      includeVatOnFees: "yes",
+      bankInitiationFee: 6037,
+      lodgementFee: 52,
+      lodgementCount: 2,
+      scheduleRows: [],
+      baseRows: []
+    };
+
+    const moneyInputIds = [
+      "purchasePrice", "deposit", "extraMonthly", "onceOffAmount", "grossIncome", "statDeductions",
+      "livingExpenses", "existingDebt", "transferPurchasePriceMirror", "bankInitiationFee", "lodgementFee"
+    ];
+
+    const allInputIds = [
+      "purchasePrice", "deposit", "interestRate", "termYears", "extraMonthly", "onceOffAmount", "onceOffMonth",
+      "grossIncome", "statDeductions", "livingExpenses", "existingDebt", "bankCap", "vatTransaction",
+      "includeVatOnFees", "bankInitiationFee", "lodgementFee", "lodgementCount"
+    ];
+
+    const byId = (id) => document.getElementById(id);
+
+    function numberFromInput(value) {
+      if (value === null || value === undefined) return 0;
+      const cleaned = String(value).replace(/[^0-9.,-]/g, "").replace(/,/g, ".");
+      const n = Number(cleaned);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function fmtZAR(value, decimals = 0) {
+      const n = Number.isFinite(value) ? value : 0;
+      return new Intl.NumberFormat("en-ZA", {
+        style: "currency",
+        currency: "ZAR",
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      }).format(n).replace("ZAR", "R");
+    }
+
+    function fmtNum(value) {
+      const n = Number.isFinite(value) ? value : 0;
+      return new Intl.NumberFormat("en-ZA", { maximumFractionDigits: 0 }).format(n);
+    }
+
+    function fmtPct(value) {
+      const n = Number.isFinite(value) ? value : 0;
+      return n.toFixed(1).replace(".0", "") + "%";
+    }
+
+    function monthlyPayment(principal, annualRatePct, years) {
+      const p = Math.max(0, Number(principal) || 0);
+      const rate = Math.max(0, Number(annualRatePct) || 0);
+      const term = Math.max(0, Number(years) || 0);
+      const months = Math.round(term * 12);
+      if (p <= 0 || months <= 0) return 0;
+      const r = rate > 0 ? (rate / 100) / 12 : 0;
+      if (r === 0) return p / months;
+      return p * r * Math.pow(1 + r, months) / (Math.pow(1 + r, months) - 1);
+    }
+
+    function buildAmortization({ principal, annualRatePct, years, extraMonthly = 0, onceOffMonth = 0, onceOffAmount = 0 }) {
+      const basePayment = monthlyPayment(principal, annualRatePct, years);
+      const r = Math.max(0, Number(annualRatePct) || 0) / 100 / 12;
+      const originalMonths = Math.round((Number(years) || 0) * 12);
+      const maxMonths = originalMonths + 600;
+      const rows = [];
+      let balance = Math.max(0, Number(principal) || 0);
+      let month = 0;
+      if (balance <= 0 || originalMonths <= 0) return rows;
+      while (balance > 0.01 && month < maxMonths) {
+        month++;
+        const opening = balance;
+        const interest = opening * r;
+        let payment = basePayment + Math.max(0, Number(extraMonthly) || 0);
+        if ((Number(onceOffAmount) || 0) > 0 && month === Math.round(Number(onceOffMonth) || 0)) payment += Number(onceOffAmount) || 0;
+        if (payment <= interest && r > 0) {
+          rows.push({ month, opening, interest, payment, principalPaid: 0, closing: opening + interest - payment });
+          break;
+        }
+        const principalPaid = Math.min(Math.max(0, payment - interest), opening);
+        balance = Math.max(0, opening - principalPaid);
+        rows.push({ month, opening, interest, payment: Math.min(payment, interest + principalPaid), principalPaid, closing: balance });
+      }
+      return rows;
+    }
+
+    function transferDuty(price) {
+      const p = Math.max(0, Number(price) || 0);
+      if (state.vatTransaction === "yes") return 0;
+      const bands = [
+        { upTo: 1210000, base: 0, rate: 0, threshold: 0 },
+        { upTo: 1663800, base: 0, rate: 0.03, threshold: 1210000 },
+        { upTo: 2329300, base: 13614, rate: 0.06, threshold: 1663800 },
+        { upTo: 2994800, base: 53544, rate: 0.08, threshold: 2329300 },
+        { upTo: 13310000, base: 106784, rate: 0.11, threshold: 2994800 },
+        { upTo: Infinity, base: 1241456, rate: 0.13, threshold: 13310000 }
+      ];
+      const band = bands.find(b => p <= b.upTo);
+      if (!band) return 0;
+      return Math.max(0, Math.round(band.base + Math.max(0, p - band.threshold) * band.rate));
+    }
+
+    function deedsTransferFee(price) {
+      const p = Math.max(0, Number(price) || 0);
+      const bands = [
+        { upTo: 100000, fee: 50 }, { upTo: 200000, fee: 114 }, { upTo: 300000, fee: 727 },
+        { upTo: 600000, fee: 956 }, { upTo: 800000, fee: 1346 }, { upTo: 1000000, fee: 1546 },
+        { upTo: 2000000, fee: 1738 }, { upTo: 4000000, fee: 2408 }, { upTo: 6000000, fee: 2922 },
+        { upTo: 8000000, fee: 3480 }, { upTo: 10000000, fee: 4068 }, { upTo: 15000000, fee: 4844 },
+        { upTo: 20000000, fee: 5818 }, { upTo: Infinity, fee: 7751 }
+      ];
+      return (bands.find(b => p <= b.upTo) || bands[bands.length - 1]).fee;
+    }
+
+    function deedsBondFee(amount) {
+      const p = Math.max(0, Number(amount) || 0);
+      const bands = [
+        { upTo: 150000, fee: 561 }, { upTo: 300000, fee: 727 }, { upTo: 600000, fee: 956 },
+        { upTo: 800000, fee: 1346 }, { upTo: 1000000, fee: 1546 }, { upTo: 2000000, fee: 1738 },
+        { upTo: 4000000, fee: 2408 }, { upTo: 6000000, fee: 2922 }, { upTo: 8000000, fee: 3480 },
+        { upTo: 10000000, fee: 4068 }, { upTo: 15000000, fee: 4844 }, { upTo: 20000000, fee: 5818 },
+        { upTo: 30000000, fee: 6781 }, { upTo: Infinity, fee: 9690 }
+      ];
+      return (bands.find(b => p <= b.upTo) || bands[bands.length - 1]).fee;
+    }
+
+    function readInputs() {
+      allInputIds.forEach(id => {
+        const el = byId(id);
+        if (!el) return;
+        state[id] = el.tagName === "SELECT" ? el.value : numberFromInput(el.value);
+      });
+      const mirror = byId("transferPurchasePriceMirror");
+      if (document.activeElement === mirror) {
+        state.purchasePrice = numberFromInput(mirror.value);
+        byId("purchasePrice").value = state.purchasePrice ? fmtNum(state.purchasePrice) : "";
+      }
+    }
+
+    function writeMoneyInputs() {
+      moneyInputIds.forEach(id => {
+        const input = byId(id);
+        if (!input) return;
+        const n = numberFromInput(input.value);
+        input.value = n ? fmtNum(n) : "";
+      });
+    }
+
+    function calculateAll() {
+      readInputs();
+      const price = Math.max(0, state.purchasePrice);
+      const deposit = Math.max(0, state.deposit);
+      const loanAmount = Math.max(0, price - deposit);
+      const monthly = monthlyPayment(loanAmount, state.interestRate, state.termYears);
+      const baseRows = buildAmortization({ principal: loanAmount, annualRatePct: state.interestRate, years: state.termYears });
+      const extraRows = buildAmortization({ principal: loanAmount, annualRatePct: state.interestRate, years: state.termYears, extraMonthly: state.extraMonthly, onceOffMonth: state.onceOffMonth, onceOffAmount: state.onceOffAmount });
+      state.baseRows = baseRows;
+      state.scheduleRows = (state.extraMonthly > 0 || state.onceOffAmount > 0) ? extraRows : baseRows;
+      const totalInterest = baseRows.reduce((sum, row) => sum + row.interest, 0);
+      const totalRepaid = loanAmount + totalInterest;
+      const depositPct = price > 0 ? deposit / price * 100 : 0;
+      const bondPct = price > 0 ? loanAmount / price * 100 : 0;
+      const per100k = loanAmount > 0 ? monthly / loanAmount * 100000 : 0;
+      byId("transferPurchasePriceMirror").value = price ? fmtNum(price) : "";
+      byId("loanAmountOut").textContent = fmtZAR(loanAmount);
+      byId("monthlyRepaymentOut").textContent = fmtZAR(monthly);
+      byId("totalInterestOut").textContent = fmtZAR(totalInterest);
+      byId("totalRepaidOut").textContent = fmtZAR(totalRepaid);
+      byId("depositPctOut").textContent = fmtPct(depositPct);
+      byId("bondPctOut").textContent = fmtPct(bondPct);
+      byId("per100kOut").textContent = fmtZAR(per100k);
+      byId("basePaymentOut").textContent = fmtZAR(monthly);
+      updateExtraImpact(baseRows, extraRows, loanAmount, totalInterest);
+      updateAffordability(monthly);
+      updateFees(price, loanAmount);
+      renderSchedule();
+    }
+
+    function updateExtraImpact(baseRows, extraRows, loanAmount, totalInterest) {
+      const hasExtras = state.extraMonthly > 0 || state.onceOffAmount > 0;
+      if (!loanAmount || !baseRows.length || !hasExtras) {
+        byId("newTermOut").textContent = "0 months";
+        byId("monthsSavedOut").textContent = "0";
+        byId("interestSavedOut").textContent = fmtZAR(0);
+        byId("repaymentMessage").textContent = "Enter the bond details, then add an extra monthly or once-off payment to see the saving.";
+        return;
+      }
+      const extraInterest = extraRows.reduce((sum, row) => sum + row.interest, 0);
+      const monthsSaved = Math.max(0, baseRows.length - extraRows.length);
+      const interestSaved = Math.max(0, totalInterest - extraInterest);
+      byId("newTermOut").textContent = `${extraRows.length} months`;
+      byId("monthsSavedOut").textContent = fmtNum(monthsSaved);
+      byId("interestSavedOut").textContent = fmtZAR(interestSaved);
+      byId("repaymentMessage").textContent = `Extra payments reduce the estimated term by ${fmtNum(monthsSaved)} months and save about ${fmtZAR(interestSaved)} in interest.`;
+    }
+
+    function updateAffordability(monthly) {
+      const proposed = monthly;
+      const G = Math.max(0, state.grossIncome), S = Math.max(0, state.statDeductions), L = Math.max(0, state.livingExpenses), D = Math.max(0, state.existingDebt), capPct = Math.max(0, state.bankCap);
+      const discretionaryIncome = Math.max(0, G - S - L - D);
+      const ncaMargin = discretionaryIncome - proposed;
+      const bankCapValue = capPct > 0 ? G * capPct / 100 : Infinity;
+      const maxInstalment = Math.min(discretionaryIncome, bankCapValue);
+      const combinedMargin = maxInstalment - proposed;
+      byId("proposedInstalmentOut").textContent = fmtZAR(proposed);
+      byId("discretionaryIncomeOut").textContent = fmtZAR(discretionaryIncome);
+      byId("ncaMarginOut").textContent = (ncaMargin >= 0 ? "+" : "") + fmtZAR(ncaMargin);
+      byId("bankCapOut").textContent = Number.isFinite(bankCapValue) ? fmtZAR(bankCapValue) : "Ignored";
+      byId("maxInstalmentOut").textContent = fmtZAR(maxInstalment);
+      byId("combinedMarginOut").textContent = (combinedMargin >= 0 ? "+" : "") + fmtZAR(combinedMargin);
+      const pill = byId("affordabilityPill");
+      pill.className = "pill amber";
+      pill.textContent = "Pending";
+      if (G > 0 && proposed > 0) {
+        if (ncaMargin < 0) { pill.className = "pill red"; pill.textContent = "Fail NCA"; }
+        else if (capPct > 0 && proposed > bankCapValue) { pill.className = "pill red"; pill.textContent = "Fail cap"; }
+        else if (combinedMargin >= 0) { pill.className = "pill green"; pill.textContent = "Pass"; }
+      }
+    }
+
+    function updateFees(price, loanAmount) {
+      const duty = transferDuty(price);
+      const transferFee = price > 0 ? deedsTransferFee(price) : 0;
+      const bondFee = loanAmount > 0 ? deedsBondFee(loanAmount) : 0;
+      const lodgementFee = Math.max(0, state.lodgementFee || 0);
+      const lodgementCount = Math.max(0, Math.round(state.lodgementCount || 0));
+      const lodgementTotal = lodgementFee * lodgementCount;
+      const transferLodgement = lodgementFee;
+      const bankInit = Math.max(0, state.bankInitiationFee || 0);
+      const vat = state.includeVatOnFees === "yes" ? Math.round((bankInit + lodgementTotal) * 0.15) : 0;
+      const transferFeesTotal = duty + transferFee + transferLodgement + bankInit + vat;
+      const deedsTotal = transferFee + bondFee + lodgementTotal;
+      byId("transferDutyOut").textContent = fmtZAR(duty);
+      byId("deedsTransferFeeOut").textContent = fmtZAR(transferFee);
+      byId("transferLodgementOut").textContent = fmtZAR(transferLodgement);
+      byId("bankInitiationOut").textContent = fmtZAR(bankInit);
+      byId("vatOnFeesOut").textContent = fmtZAR(vat);
+      byId("transferFeesTotalOut").textContent = fmtZAR(transferFeesTotal);
+      byId("totalCashCostsOut").textContent = fmtZAR(transferFeesTotal + bondFee);
+      byId("deedsPriceUsedOut").textContent = fmtZAR(price);
+      byId("deedsBondUsedOut").textContent = fmtZAR(loanAmount);
+      byId("deedsTransferFeeOut2").textContent = fmtZAR(transferFee);
+      byId("deedsBondFeeOut").textContent = fmtZAR(bondFee);
+      byId("deedsLodgementOut").textContent = fmtZAR(lodgementTotal);
+      byId("deedsFeesTotalOut").textContent = fmtZAR(deedsTotal);
+    }
+
+    function renderSchedule() {
+      const body = byId("scheduleBody");
+      const rows = state.scheduleRows || [];
+      if (!rows.length) {
+        body.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#9aa8ba;padding:18px">Enter bond inputs and calculate to generate the schedule.</td></tr>`;
+        return;
+      }
+      body.innerHTML = rows.map(row => `
+        <tr>
+          <td>${row.month}</td>
+          <td>${fmtZAR(row.opening)}</td>
+          <td>${fmtZAR(row.interest)}</td>
+          <td>${fmtZAR(row.payment)}</td>
+          <td>${fmtZAR(row.principalPaid)}</td>
+          <td>${fmtZAR(row.closing)}</td>
+        </tr>`).join("");
+    }
+
+    function exportCSV() {
+      calculateAll();
+      const rows = state.scheduleRows || [];
+      if (!rows.length) { alert("Calculate the bond first before exporting."); return; }
+      const csv = [["Month","Opening Balance","Interest","Payment","Principal","Closing Balance"], ...rows.map(r => [r.month, r.opening.toFixed(2), r.interest.toFixed(2), r.payment.toFixed(2), r.principalPaid.toFixed(2), r.closing.toFixed(2)])].map(row => row.join(",")).join("
+");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "blue-lily-bond-repayment-schedule.csv";
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+
+    function clearAll() {
+      allInputIds.forEach(id => {
+        const el = byId(id); if (!el) return;
+        if (id === "bankCap") el.value = "30";
+        else if (id === "vatTransaction") el.value = "no";
+        else if (id === "includeVatOnFees") el.value = "yes";
+        else if (id === "bankInitiationFee") el.value = "6 037";
+        else if (id === "lodgementFee") el.value = "52";
+        else if (id === "lodgementCount") el.value = "2";
+        else el.value = "";
+      });
+      Object.assign(state, { purchasePrice:0, deposit:0, interestRate:0, termYears:0, extraMonthly:0, onceOffAmount:0, onceOffMonth:0, grossIncome:0, statDeductions:0, livingExpenses:0, existingDebt:0, bankCap:30, vatTransaction:"no", includeVatOnFees:"yes", bankInitiationFee:6037, lodgementFee:52, lodgementCount:2, scheduleRows:[], baseRows:[] });
+      calculateAll();
+    }
+
+    function clearExtras() { ["extraMonthly","onceOffAmount","onceOffMonth"].forEach(id => byId(id).value = ""); calculateAll(); }
+    function saveState() { readInputs(); localStorage.setItem("blue-lily-bond-calculator", JSON.stringify(state)); alert("Saved on this device."); }
+    function loadState() {
+      const saved = localStorage.getItem("blue-lily-bond-calculator");
+      if (!saved) { alert("No saved calculator found on this device."); return; }
+      const data = JSON.parse(saved);
+      allInputIds.forEach(id => { const el = byId(id); if (!el || data[id] === undefined) return; el.value = data[id] || ""; });
+      if (data.vatTransaction) byId("vatTransaction").value = data.vatTransaction;
+      if (data.includeVatOnFees) byId("includeVatOnFees").value = data.includeVatOnFees;
+      writeMoneyInputs(); calculateAll();
+    }
+
+    function setupTabs() {
+      document.querySelectorAll(".tab").forEach(tab => {
+        tab.addEventListener("click", () => {
+          document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+          document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+          tab.classList.add("active"); byId(tab.dataset.tab).classList.add("active"); calculateAll();
+        });
+      });
+    }
+
+    function setupInputs() {
+      allInputIds.concat(["transferPurchasePriceMirror"]).forEach(id => {
+        const el = byId(id); if (!el) return;
+        el.addEventListener("input", calculateAll);
+        el.addEventListener("change", calculateAll);
+        el.addEventListener("blur", () => { if (el.hasAttribute("data-money")) writeMoneyInputs(); calculateAll(); });
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      byId("yearOut").textContent = new Date().getFullYear();
+      setupTabs(); setupInputs();
+      ["calculateBtn","recalculateExtraBtn","affordabilityBtn","transferFeesBtn","deedsFeesBtn"].forEach(id => byId(id).addEventListener("click", () => { writeMoneyInputs(); calculateAll(); }));
+      byId("clearBtn").addEventListener("click", clearAll);
+      byId("clearExtrasBtn").addEventListener("click", clearExtras);
+      byId("exportCsvBtn").addEventListener("click", exportCSV);
+      byId("saveBtn").addEventListener("click", saveState);
+      byId("loadBtn").addEventListener("click", loadState);
+      byId("saveBtnMobile").addEventListener("click", saveState);
+      byId("loadBtnMobile").addEventListener("click", loadState);
+      writeMoneyInputs(); calculateAll();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "name": "Blue Lily Bond Calculator",
+  "short_name": "Blue Lily Bond",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#07090d",
+  "theme_color": "#43566f",
+  "icons": [
+    {
+      "src": "assets/blue-lily-logo.png",
+      "sizes": "635x661",
+      "type": "image/png"
+    }
+  ]
+}
